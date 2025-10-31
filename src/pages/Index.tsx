@@ -180,15 +180,23 @@ const Index = () => {
 
             <Card className="bg-[#4e342e] text-white rounded-lg" style={getWidgetStyles(2)}>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-saira">Widget 3</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="text-sm">Content here</p>
               </CardContent>
             </Card>
 
-            
-
+            {/* Merged widget that fades in over the three widgets */}
+            <Card
+              className="bg-white text-black rounded-lg shadow-lg"
+              style={getMergedStyle()}
+            >
+              <CardHeader className="pb-2">
+                {/* optional merged header */}
+              </CardHeader>
+              <CardContent className="pt-0">
+                {/* optional merged content */}
+              </CardContent>
+            </Card>
           </div>
 
 
