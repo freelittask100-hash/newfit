@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 const Products = () => {
   const navigate = useNavigate();
@@ -13,6 +13,7 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const categoriesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -67,6 +68,29 @@ const Products = () => {
     setFilteredProducts(filtered);
   };
 
+  const handleCategoryClick = (category: string) => {
+    setCategoryFilter(category);
+    // Auto-scroll logic for mobile
+    if (categoriesRef.current) {
+      const container = categoriesRef.current;
+      const buttons = container.querySelectorAll('button');
+      const clickedButton = Array.from(buttons).find(btn => btn.textContent?.toLowerCase().replace(' ', '_') === category || (category === 'all' && btn.textContent === 'All Categories'));
+      if (clickedButton) {
+        const buttonRect = clickedButton.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const buttonLeft = buttonRect.left - containerRect.left;
+        const buttonRight = buttonLeft + buttonRect.width;
+        const containerWidth = containerRect.width;
+
+        // If button is near left or right edge, scroll to center it
+        if (buttonLeft < 50 || buttonRight > containerWidth - 50) {
+          const scrollLeft = buttonLeft - (containerWidth / 2) + (buttonRect.width / 2);
+          container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+        }
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -84,50 +108,91 @@ const Products = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Our Products</h1>
-
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+    <div className="bg-[#b5edce]/50 min-h-screen">
+      <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-col gap-4 mb-6">
         <Input
           placeholder="Search products..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="md:w-96"
         />
-        
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="md:w-64">
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="protein_bars">Protein Bars</SelectItem>
-            <SelectItem value="dessert_bars">Dessert Bars</SelectItem>
-            <SelectItem value="chocolates">Chocolates</SelectItem>
-          </SelectContent>
-        </Select>
+
+        <div
+          ref={categoriesRef}
+          className="flex gap-2 overflow-x-auto pb-2 md:justify-start md:overflow-x-visible"
+        >
+          <Button
+            variant={categoryFilter === "all" ? "default" : "outline"}
+            onClick={() => handleCategoryClick("all")}
+            className={`whitespace-nowrap rounded-lg font-poppins font-bold bg-white text-[#3b2a20] border-white hover:bg-[#5e4338] hover:text-white ${categoryFilter === "all" ? "bg-[#5e4338] text-white" : ""}`}
+          >
+            All Categories
+          </Button>
+          <Button
+            variant={categoryFilter === "protein_bars" ? "default" : "outline"}
+            onClick={() => handleCategoryClick("protein_bars")}
+            className={`whitespace-nowrap rounded-lg font-poppins font-bold bg-white text-[#3b2a20] border-white hover:bg-[#5e4338] hover:text-white ${categoryFilter === "protein_bars" ? "bg-[#5e4338] text-white" : ""}`}
+          >
+            Protein Bars
+          </Button>
+          <Button
+            variant={categoryFilter === "dessert_bars" ? "default" : "outline"}
+            onClick={() => handleCategoryClick("dessert_bars")}
+            className={`whitespace-nowrap rounded-lg font-poppins font-bold bg-white text-[#3b2a20] border-white hover:bg-[#5e4338] hover:text-white ${categoryFilter === "dessert_bars" ? "bg-[#5e4338] text-white" : ""}`}
+          >
+            Dessert Bars
+          </Button>
+          <Button
+            variant={categoryFilter === "chocolates" ? "default" : "outline"}
+            onClick={() => handleCategoryClick("chocolates")}
+            className={`whitespace-nowrap rounded-lg font-poppins font-bold bg-white text-[#3b2a20] border-white hover:bg-[#5e4338] hover:text-white ${categoryFilter === "chocolates" ? "bg-[#5e4338] text-white" : ""}`}
+          >
+            Chocolates
+          </Button>
+        </div>
       </div>
 
       {filteredProducts.length === 0 ? (
-        <p className="text-muted-foreground">No products found.</p>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <p className="font-saira font-black text-6xl text-[#3b2a20]/30">NO PRODUCTS HERE YET!</p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
             <Card
               key={product.id}
               className="p-4 cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => navigate(`/product/${product.id}`)}
+              onClick={() => navigate(`/product/${encodeURIComponent(product.name)}`)}
             >
-              <div className="h-48 bg-muted rounded-lg mb-4" />
+              <div className="w-48 h-48 bg-muted rounded-lg mb-4 overflow-hidden mx-auto">
+                {product.products_page_image ? (
+                  <img
+                    src={product.products_page_image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : product.images && product.images.length > 0 ? (
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
+                    No Image
+                  </div>
+                )}
+              </div>
               <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-              <p className="text-primary font-bold">₹{product.price}</p>
-              <p className="text-sm text-muted-foreground">
-                {product.stock > 0 ? `Stock: ${product.stock}` : "Out of stock"}
+              <p className="text-primary font-bold">
+                {product.price ? `₹${product.price}` : `₹${product.price_15g} - ₹${product.price_20g}`}
               </p>
             </Card>
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 };

@@ -9,6 +9,7 @@ import image4 from "@/assets/4.png";
 import image6 from "@/assets/6.png";
 import image8 from "@/assets/8.png";
 import image10 from "@/assets/10.png";
+import image24 from "@/assets/24.png";
 
 const Index = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -51,8 +52,8 @@ const Index = () => {
     const baseStyles = {
       position: 'absolute' as const,
       transition: isMobile ? 'all 0.8s ease-out' : 'all 0.3s ease-out', // Slower transition on mobile
-      width: isMobile ? '240px' : '384px', // w-60 on mobile, w-96 on desktop
-      height: isMobile ? '180px' : '288px', // h-45 on mobile, h-72 on desktop
+      width: isMobile ? '240px' : '400px', // w-60 on mobile, w-96 on desktop
+      height: isMobile ? '180px' : '300px', // h-45 on mobile, h-72 on desktop
       zIndex: 1,
     };
 
@@ -72,7 +73,7 @@ const Index = () => {
     else if (scrollProgress < 0.25) {
       const isMobile = windowWidth < 768;
       const positions = isMobile
-        ? [{ left: '50%', top: '20%' }, { left: '50%', top: '50%' }, { left: '50%', top: '80%' }]
+        ? [{ left: '50%', top: '15%' }, { left: '50%', top: '50%' }, { left: '50%', top: '85%' }]
         : ['0%', '50%', '100%'];
       const scale = 1;
       const opacity = 1;
@@ -88,7 +89,7 @@ const Index = () => {
     else if (scrollProgress < (windowWidth < 768 ? 0.5 : 0.4)) {
       const isMobile = windowWidth < 768;
       const positions = isMobile
-        ? [{ left: '50%', top: '20%' }, { left: '50%', top: '50%' }, { left: '50%', top: '80%' }]
+        ? [{ left: '50%', top: '15%' }, { left: '50%', top: '50%' }, { left: '50%', top: '85%' }]
         : ['0%', '50%', '100%'];
       const scale = 1;
       const opacity = 1;
@@ -100,19 +101,31 @@ const Index = () => {
         opacity,
       };
     }
-    // Phase 4: Merging into one big widget (progress 0.4-1.0)
+    // Phase 4: Merging into one big widget on mobile, stay expanded on PC (progress 0.4-1.0)
     else {
-      const mergeProgress = (scrollProgress - 0.4) / 0.6; // 0 to 1
-      const scale = 1 + mergeProgress * 0.5; // 1 to 1.5
-      const fadeSpeed = isMobile ? 0.5 : 4; // Even faster fade on PC
-      const opacity = 1 - mergeProgress * fadeSpeed; // Fade out very fast on PC
-      return {
-        ...baseStyles,
-        left: '50%',
-        top: '50%',
-        transform: `translate(-50%, -50%) scale(${scale})`,
-        opacity: Math.max(0, opacity), // Ensure opacity doesn't go negative
-      };
+      if (isMobile) {
+        const mergeProgress = (scrollProgress - 0.4) / 0.6; // 0 to 1
+        const scale = 1 + mergeProgress * 0.5; // 1 to 1.5
+        const fadeSpeed = 0.5;
+        const opacity = 1 - mergeProgress * fadeSpeed;
+        return {
+          ...baseStyles,
+          left: '50%',
+          top: '50%',
+          transform: `translate(-50%, -50%) scale(${scale})`,
+          opacity: Math.max(0, opacity),
+        };
+      } else {
+        // On PC, keep widgets expanded and separated
+        const positions = ['0%', '50%', '100%'];
+        return {
+          ...baseStyles,
+          left: positions[index],
+          top: '50%',
+          transform: 'translate(-50%, -50%) scale(1)',
+          opacity: 1,
+        };
+      }
     }
   };
 
@@ -162,43 +175,35 @@ const Index = () => {
           >
             <Card className="bg-[#4e342e] text-white rounded-lg" style={getWidgetStyles(0)}>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-saira">Widget 1</CardTitle>
+                <CardTitle className="text-lg font-saira font-black text-white uppercase">REAL INGREDIENTS</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="text-sm">Content here</p>
+                <p className="text-sm font-saira font-medium text-white">We start with real, recognizable ingredients. No artificial stuff.</p>
               </CardContent>
             </Card>
 
             <Card className="bg-[#4e342e] text-white rounded-lg" style={getWidgetStyles(1)}>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-saira">Widget 2</CardTitle>
+                <CardTitle className="text-lg font-saira font-black text-white uppercase">BALANCED NUTRITION</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="text-sm">Content here</p>
+                <p className="text-sm font-saira font-medium text-white">We keep protein strong, calories sensible,for nutrition that supports you without extremes.</p>
               </CardContent>
             </Card>
 
             <Card className="bg-[#4e342e] text-white rounded-lg" style={getWidgetStyles(2)}>
               <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-saira font-black text-white uppercase">BETTER SWEETNESS</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-              </CardContent>
-            </Card>
-
-            {/* Merged widget that fades in over the three widgets */}
-            <Card
-              className="bg-white text-black rounded-lg shadow-lg"
-              style={getMergedStyle()}
-            >
-              <CardHeader className="pb-2">
-                {/* optional merged header */}
-              </CardHeader>
-              <CardContent className="pt-0">
-                {/* optional merged content */}
+                <p className="text-sm font-saira font-medium text-white">A sweetness, balanced with real and better sources, that goes easy on you.</p>
               </CardContent>
             </Card>
           </div>
 
+          <div className="flex justify-center mb-8">
+            <img src={image24} alt="Image 24" className="w-100 h-100 object-contain" />
+          </div>
 
           <h3 className="text-2xl font-poppins font-bold text-black mb-4 text-center">
             FEATURING
@@ -208,7 +213,7 @@ const Index = () => {
           </h2>
           <div className="max-w-3xl mx-auto text-center container px-4">
             <div className="flex gap-4 justify-center">
-              <Link to="/products">
+              <Link to="/product/CHOCONUT">
                 <Button size="lg" className="bg-white text-black hover:bg-[#5e4338] hover:text-white font-poppins font-bold">SHOP NOW</Button>
               </Link>
               <Link to="/auth">

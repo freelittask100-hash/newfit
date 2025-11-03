@@ -22,6 +22,8 @@ const ProductsTab = () => {
     name: "",
     category: "protein_bars",
     price: "",
+    price_15g: "",
+    price_20g: "",
     stock: "",
     nutrition: "",
     description: "",
@@ -31,7 +33,10 @@ const ProductsTab = () => {
     weight: "",
     shelf_life: "",
     allergens: "",
+    min_order_quantity: "",
   });
+  const [productsPageImageFile, setProductsPageImageFile] = useState<File | null>(null);
+  const [cartImageFile, setCartImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -50,6 +55,8 @@ const ProductsTab = () => {
       name: "",
       category: "protein_bars",
       price: "",
+      price_15g: "",
+      price_20g: "",
       stock: "",
       nutrition: "",
       description: "",
@@ -59,36 +66,59 @@ const ProductsTab = () => {
       weight: "",
       shelf_life: "",
       allergens: "",
+      min_order_quantity: "",
     });
     setEditingProduct(null);
     setImageFiles([]);
     setExistingImages([]);
+    setProductsPageImageFile(null);
+    setCartImageFile(null);
   };
 
   const uploadImages = async (productId: string): Promise<string[]> => {
     const uploadedUrls: string[] = [];
-    
+
     for (const file of imageFiles) {
       const fileExt = file.name.split('.').pop();
       const fileName = `${productId}/${Date.now()}-${Math.random()}.${fileExt}`;
-      
+
       const { error: uploadError, data } = await supabase.storage
         .from('product-images')
         .upload(fileName, file);
-      
+
       if (uploadError) {
         console.error('Upload error:', uploadError);
         continue;
       }
-      
+
       const { data: { publicUrl } } = supabase.storage
         .from('product-images')
         .getPublicUrl(fileName);
-      
+
       uploadedUrls.push(publicUrl);
     }
-    
+
     return uploadedUrls;
+  };
+
+  const uploadSingleImage = async (file: File, productId: string, type: string): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${productId}/${type}-${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('product-images')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      console.error(`Upload error for ${type}:`, uploadError);
+      return null;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,21 +141,42 @@ const ProductsTab = () => {
     setUploadingImages(true);
 
     try {
+      // Validate numeric fields before parsing
+      const price = formData.price ? parseFloat(formData.price) : 0;
+      const price15g = parseFloat(formData.price_15g);
+      const price20g = parseFloat(formData.price_20g);
+      const stock = parseInt(formData.stock);
+      const minOrderQuantity = formData.min_order_quantity ? parseInt(formData.min_order_quantity) : undefined;
+
+      // Check for NaN values
+      if (isNaN(price15g) || isNaN(price20g) || isNaN(stock) ||
+          (minOrderQuantity !== undefined && isNaN(minOrderQuantity))) {
+        toast({
+          title: "Validation failed",
+          description: "Please enter valid numeric values for price, stock, and quantity fields",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const productData = {
         ...formData,
         category: formData.category as "protein_bars" | "dessert_bars" | "chocolates",
-        price: parseFloat(formData.price),
-        stock: parseInt(formData.stock),
+        price: price || undefined,
+        price_15g: price15g,
+        price_20g: price20g,
+        stock,
+        min_order_quantity: minOrderQuantity,
       };
 
       // Validate product data before submitting
       const validationResult = productSchema.safeParse(productData);
       if (!validationResult.success) {
         const firstError = validationResult.error.errors[0];
-        toast({ 
-          title: "Validation failed", 
-          description: firstError.message, 
-          variant: "destructive" 
+        toast({
+          title: "Validation failed",
+          description: firstError.message,
+          variant: "destructive"
         });
         return;
       }
@@ -142,9 +193,26 @@ const ProductsTab = () => {
         // Combine existing and new images
         const allImages = [...existingImages, ...newImageUrls];
 
+        // Upload separate images
+        let productsPageImageUrl = editingProduct.products_page_image;
+        let cartImageUrl = editingProduct.cart_image;
+
+        if (productsPageImageFile) {
+          productsPageImageUrl = await uploadSingleImage(productsPageImageFile, editingProduct.id, 'products-page');
+        }
+
+        if (cartImageFile) {
+          cartImageUrl = await uploadSingleImage(cartImageFile, editingProduct.id, 'cart');
+        }
+
         const { error } = await supabase
           .from("products")
-          .update({ ...validatedData, images: allImages })
+          .update({
+            ...validatedData,
+            images: allImages,
+            products_page_image: productsPageImageUrl,
+            cart_image: cartImageUrl
+          })
           .eq("id", editingProduct.id);
 
         if (error) {
@@ -171,11 +239,27 @@ const ProductsTab = () => {
         // Upload images if any
         if (imageFiles.length > 0) {
           const imageUrls = await uploadImages(newProduct.id);
-          
+
+          // Upload separate images
+          let productsPageImageUrl = null;
+          let cartImageUrl = null;
+
+          if (productsPageImageFile) {
+            productsPageImageUrl = await uploadSingleImage(productsPageImageFile, newProduct.id, 'products-page');
+          }
+
+          if (cartImageFile) {
+            cartImageUrl = await uploadSingleImage(cartImageFile, newProduct.id, 'cart');
+          }
+
           // Update product with image URLs
           await supabase
             .from("products")
-            .update({ images: imageUrls })
+            .update({
+              images: imageUrls,
+              products_page_image: productsPageImageUrl,
+              cart_image: cartImageUrl
+            })
             .eq("id", newProduct.id);
         }
 
@@ -194,7 +278,9 @@ const ProductsTab = () => {
     setFormData({
       name: product.name,
       category: product.category,
-      price: product.price.toString(),
+      price: product.price?.toString() || "",
+      price_15g: product.price_15g?.toString() || "",
+      price_20g: product.price_20g?.toString() || "",
       stock: product.stock.toString(),
       nutrition: product.nutrition,
       description: product.description || "",
@@ -204,6 +290,7 @@ const ProductsTab = () => {
       weight: product.weight || "",
       shelf_life: product.shelf_life || "",
       allergens: product.allergens || "",
+      min_order_quantity: product.min_order_quantity?.toString() || "",
     });
     setExistingImages(product.images || []);
     setImageFiles([]);
@@ -262,13 +349,31 @@ const ProductsTab = () => {
                 </Select>
               </div>
 
+              <div>
+                <Label>Price (₹)</Label>
+                <Input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Price (₹) *</Label>
+                  <Label>Price 15g (₹) *</Label>
                   <Input
                     type="number"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    value={formData.price_15g}
+                    onChange={(e) => setFormData({ ...formData, price_15g: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label>Price 20g (₹) *</Label>
+                  <Input
+                    type="number"
+                    value={formData.price_20g}
+                    onChange={(e) => setFormData({ ...formData, price_20g: e.target.value })}
                     required
                   />
                 </div>
@@ -279,6 +384,15 @@ const ProductsTab = () => {
                     value={formData.stock}
                     onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                     required
+                  />
+                </div>
+                <div>
+                  <Label>Min Order Quantity</Label>
+                  <Input
+                    type="number"
+                    value={formData.min_order_quantity}
+                    onChange={(e) => setFormData({ ...formData, min_order_quantity: e.target.value })}
+                    placeholder="Leave empty for no minimum"
                   />
                 </div>
               </div>
@@ -346,7 +460,7 @@ const ProductsTab = () => {
               </div>
 
               <div>
-                <Label>Product Images</Label>
+                <Label>Product Images (General)</Label>
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <Input
@@ -365,9 +479,9 @@ const ProductsTab = () => {
                       <div className="grid grid-cols-3 gap-2">
                         {existingImages.map((url, index) => (
                           <div key={index} className="relative group">
-                            <img 
-                              src={url} 
-                              alt={`Product ${index + 1}`} 
+                            <img
+                              src={url}
+                              alt={`Product ${index + 1}`}
                               className="w-full h-20 object-cover rounded"
                             />
                             <Button
@@ -391,9 +505,9 @@ const ProductsTab = () => {
                       <div className="grid grid-cols-3 gap-2">
                         {imageFiles.map((file, index) => (
                           <div key={index} className="relative group">
-                            <img 
-                              src={URL.createObjectURL(file)} 
-                              alt={`New ${index + 1}`} 
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt={`New ${index + 1}`}
                               className="w-full h-20 object-cover rounded"
                             />
                             <Button
@@ -413,6 +527,68 @@ const ProductsTab = () => {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Products Page Image (192x192px)</Label>
+                  <div className="space-y-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setProductsPageImageFile(e.target.files?.[0] || null)}
+                      className="w-full"
+                    />
+                    {productsPageImageFile && (
+                      <div className="w-24 h-24 border rounded overflow-hidden">
+                        <img
+                          src={URL.createObjectURL(productsPageImageFile)}
+                          alt="Products page preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    {editingProduct?.products_page_image && !productsPageImageFile && (
+                      <div className="w-24 h-24 border rounded overflow-hidden">
+                        <img
+                          src={editingProduct.products_page_image}
+                          alt="Current products page image"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Cart Image (64x64px)</Label>
+                  <div className="space-y-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setCartImageFile(e.target.files?.[0] || null)}
+                      className="w-full"
+                    />
+                    {cartImageFile && (
+                      <div className="w-16 h-16 border rounded overflow-hidden">
+                        <img
+                          src={URL.createObjectURL(cartImageFile)}
+                          alt="Cart preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    {editingProduct?.cart_image && !cartImageFile && (
+                      <div className="w-16 h-16 border rounded overflow-hidden">
+                        <img
+                          src={editingProduct.cart_image}
+                          alt="Current cart image"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <Button type="submit" className="w-full" disabled={uploadingImages}>
                 {uploadingImages ? "Uploading..." : editingProduct ? "Update" : "Create"} Product
               </Button>
@@ -425,8 +601,8 @@ const ProductsTab = () => {
         {products.map((product) => (
           <Card key={product.id} className="p-4">
             {product.images && product.images.length > 0 ? (
-              <img 
-                src={product.images[0]} 
+              <img
+                src={product.images[0]}
                 alt={product.name}
                 className="h-32 w-full object-cover rounded-lg mb-3"
               />
@@ -436,7 +612,9 @@ const ProductsTab = () => {
               </div>
             )}
             <h3 className="font-semibold mb-1">{product.name}</h3>
-            <p className="text-primary font-bold mb-1">₹{product.price}</p>
+            <p className="text-primary font-bold mb-1">
+              {product.price ? `₹${product.price}` : `₹${product.price_15g} - ₹${product.price_20g}`}
+            </p>
             <p className="text-sm text-muted-foreground mb-3">Stock: {product.stock}</p>
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => handleEdit(product)}>

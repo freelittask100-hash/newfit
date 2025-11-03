@@ -1,6 +1,8 @@
-# TODO: Add New Widget Over Fading Widgets
+# TODO: Product Price Management Updates
 
-- [x] Import the five images (2.png, 4.png, 6.png, 8.png, 10.png) at the top of src/pages/Index.tsx
-- [x] Move the text "HOW WE MAKE FOOD BETTER ?" and paragraphs to the middle of the page (center horizontally and vertically in white section for PC)
-- [x] Put images below the text in a single row on PC (each 2 inches), and on mobile: three in first row, two in second row with smaller sizes
-- [ ] Add a new widget (3.5 inches height, 9 inches breadth) that fades in fastly over the three widgets once they start fading out
+## Tasks
+- [x] Make main price field optional in admin ProductsTab
+- [x] Update ProductDetail to use variant prices only (ignore main price)
+- [x] Test admin form price field can be left empty
+- [x] Test product detail price updates with quantity and protein variant
+- [x] Verify cart functionality with new pricing logic

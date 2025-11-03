@@ -229,9 +229,10 @@ CREATE POLICY "Admins can manage roles"
   ON public.user_roles FOR ALL
   USING (public.has_role(auth.uid(), 'admin'));
 
--- Storage bucket for product images
+-- Storage bucket for product images (only if it doesn't exist)
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('product-images', 'product-images', true);
+VALUES ('product-images', 'product-images', true)
+ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies
 CREATE POLICY "Public can view product images"

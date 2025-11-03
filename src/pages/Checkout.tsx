@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 
 const Checkout = () => {
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, totalPrice, clearCart, discountedTotal, discountAmount, promoCode } = useCart();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -60,7 +60,7 @@ const Checkout = () => {
     // Create order and items atomically using database function
     const { data, error } = await supabase.rpc('create_order_with_items', {
       p_user_id: user.id,
-      p_total_price: totalPrice,
+      p_total_price: discountedTotal,
       p_address: profile.address,
       p_payment_id: paymentId,
       p_items: orderItems,
@@ -137,9 +137,15 @@ const Checkout = () => {
                 <span>Subtotal</span>
                 <span>₹{totalPrice}</span>
               </div>
+              {promoCode && discountAmount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Discount ({promoCode.discount_percentage}%)</span>
+                  <span>-₹{discountAmount.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between font-bold text-lg pt-2 border-t">
                 <span>Total</span>
-                <span>₹{totalPrice}</span>
+                <span>₹{discountedTotal.toFixed(2)}</span>
               </div>
             </div>
 

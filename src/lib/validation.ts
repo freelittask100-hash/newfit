@@ -49,7 +49,14 @@ export const productSchema = z.object({
   }),
   price: z.number()
     .positive('Price must be positive')
-    .max(100000, 'Price must be less than ₹100,000'),
+    .max(100000, 'Price must be less than ₹100,000')
+    .optional(),
+  price_15g: z.number()
+    .positive('15g price must be positive')
+    .max(100000, '15g price must be less than ₹100,000'),
+  price_20g: z.number()
+    .positive('20g price must be positive')
+    .max(100000, '20g price must be less than ₹100,000'),
   stock: z.number()
     .int('Stock must be a whole number')
     .min(0, 'Stock cannot be negative')
@@ -78,5 +85,10 @@ export const productSchema = z.object({
     .optional(),
   allergens: z.string()
     .max(200, 'Allergens info must be less than 200 characters')
+    .optional(),
+  min_order_quantity: z.number()
+    .int('Minimum order quantity must be a whole number')
+    .min(1, 'Minimum order quantity must be at least 1')
+    .max(1000, 'Minimum order quantity must be less than 1000')
     .optional(),
 });

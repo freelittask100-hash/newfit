@@ -6,6 +6,7 @@ import { LogOut } from "lucide-react";
 import ProductsTab from "@/components/admin/ProductsTab";
 import OrdersTab from "@/components/admin/OrdersTab";
 import AnalyticsTab from "@/components/admin/AnalyticsTab";
+import PromoCodesTab from "@/components/admin/PromoCodesTab";
 import ProtectedAdminRoute from "@/components/admin/ProtectedAdminRoute";
 
 const AdminDashboard = () => {
@@ -30,6 +31,7 @@ const AdminDashboard = () => {
           <TabsList>
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
+            <TabsTrigger value="promo-codes">Promo Codes</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -39,6 +41,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="orders">
             <OrdersTab />
+          </TabsContent>
+
+          <TabsContent value="promo-codes">
+            <PromoCodesTab />
           </TabsContent>
 
           <TabsContent value="analytics">
