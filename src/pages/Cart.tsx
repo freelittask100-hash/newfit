@@ -189,23 +189,23 @@ const Cart = () => {
 
             <div className="space-y-2">
               {user ? (
-                <Button className="w-full font-poppins font-bold" onClick={() => navigate("/address")}>
-                  Proceed to Address Selection
+                <Button className="w-full font-poppins font-bold" onClick={() => navigate("/checkout")}>
+                  Order Now
                 </Button>
               ) : (
                 <>
                   <Button
                     className="w-full font-poppins font-bold"
-                    onClick={() => navigate("/address", { state: { isGuest: true } })}
+                    onClick={() => navigate("/checkout", { state: { isGuest: true } })}
                   >
-                    Continue as Guest
+                    Order Now
                   </Button>
                   <Button
                     variant="outline"
                     className="w-full font-poppins font-bold"
-                    onClick={() => navigate("/auth")}
+                    onClick={() => navigate("/auth", { state: { returnTo: "/cart" } })}
                   >
-                    Sign In to Account
+                    Sign In & Order
                   </Button>
                 </>
               )}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,12 +17,14 @@ const Auth = () => {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/");
+        const returnTo = location.state?.returnTo || "/";
+        navigate(returnTo);
       }
     };
     checkUser();
@@ -50,7 +52,8 @@ const Auth = () => {
 
         if (error) throw error;
         toast.success("Welcome back!");
-        navigate("/");
+        const returnTo = location.state?.returnTo || "/";
+        navigate(returnTo);
       } else {
         // Validate signup data
         const validationResult = signupSchema.safeParse({
