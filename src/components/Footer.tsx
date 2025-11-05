@@ -231,13 +231,12 @@ const Footer = () => {
             <div className="mb-4">
               <h3 className="font-extrabold text-lg mb-4">SOCIALS</h3>
               <div className="flex space-x-4">
-                <Link to="#" className="hover:opacity-80 transition-colors">
+                <a href="https://instagram.com/freelit" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-colors">
                   <Instagram size={24} style={{ color: '#b5edce' }} />
-                </Link>
-                <Link to="#" className="hover:opacity-80 transition-colors">
+                </a>
+                <a href="https://linkedin.com/company/freelit" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-colors">
                   <Linkedin size={24} style={{ color: '#b5edce' }} />
-                </Link>
-
+                </a>
               </div>
             </div>
 
