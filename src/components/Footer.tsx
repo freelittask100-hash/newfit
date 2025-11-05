@@ -231,7 +231,7 @@ const Footer = () => {
             <div className="mb-4">
               <h3 className="font-extrabold text-lg mb-4">SOCIALS</h3>
               <div className="flex space-x-4">
-                <a href="https://instagram.com/freelit" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-colors">
+                <a href="https://www.instagram.com/freel_it?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-colors">
                   <Instagram size={24} style={{ color: '#b5edce' }} />
                 </a>
                 <a href="https://linkedin.com/company/freelit" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-colors">
