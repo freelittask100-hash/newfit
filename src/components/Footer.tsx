@@ -1,14 +1,45 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Instagram, Linkedin, Twitter, ChevronDown } from "lucide-react";
+import { Instagram, Linkedin, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const Footer = () => {
   const [helpOpen, setHelpOpen] = useState(false);
   const [linksOpen, setLinksOpen] = useState(false);
   const [newsletterOpen, setNewsletterOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from("newsletter_subscribers")
+        .insert([{ email: email.trim() }]);
+
+      if (error) {
+        if (error.code === '23505') { // unique constraint violation
+          toast({ title: "Already subscribed", description: "This email is already subscribed to our newsletter." });
+        } else {
+          toast({ title: "Subscription failed", variant: "destructive" });
+        }
+      } else {
+        toast({ title: "Successfully subscribed!", description: "Thank you for subscribing to our newsletter." });
+        setEmail("");
+      }
+    } catch (error) {
+      toast({ title: "Subscription failed", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <footer className="border-t mt-auto bg-[#3b2a20] font-poppins font-medium" style={{ color: '#b5edce' }}>
@@ -108,7 +139,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="hover:opacity-80 transition-colors">
+                <Link to="/blogs" className="hover:opacity-80 transition-colors">
                   Blog
                 </Link>
               </li>
@@ -137,7 +168,7 @@ const Footer = () => {
                   </Link>
                 </div>
                 <div className="border-t border-[#b5edce]/30 pt-2">
-                  <Link to="/blog" className="block hover:opacity-80 transition-colors py-1">
+                  <Link to="/blogs" className="block hover:opacity-80 transition-colors py-1">
                     Blog
                   </Link>
                 </div>
@@ -148,16 +179,23 @@ const Footer = () => {
           {/* NEWSLETTER Section */}
           <div className="md:block hidden">
             <h3 className="font-extrabold text-lg mb-4">NEWSLETTER</h3>
-            <div className="space-y-2">
+            <form onSubmit={handleNewsletterSubmit} className="space-y-2">
               <Input
                 type="email"
                 placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="bg-transparent border-[#b5edce] text-[#b5edce] placeholder:text-[#b5edce]/70"
+                required
               />
-              <Button className="w-full bg-[#b5edce] text-[#3b2a20] hover:bg-[#b5edce]/80 font-poppins font-bold">
-                Sign Up
+              <Button
+                type="submit"
+                className="w-full bg-[#b5edce] text-[#3b2a20] hover:bg-[#b5edce]/80 font-poppins font-bold"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Signing Up..." : "Sign Up"}
               </Button>
-            </div>
+            </form>
           </div>
           <div className="md:hidden">
             <Collapsible open={newsletterOpen} onOpenChange={setNewsletterOpen}>
@@ -166,18 +204,23 @@ const Footer = () => {
                 <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${newsletterOpen ? 'rotate-180' : ''}`} />
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-2">
-                <div className="pt-2">
+                <form onSubmit={handleNewsletterSubmit} className="pt-2 space-y-2">
                   <Input
                     type="email"
                     placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="bg-transparent border-[#b5edce] text-[#b5edce] placeholder:text-[#b5edce]/70 w-full"
+                    required
                   />
-                </div>
-                <div className="pt-2">
-                  <Button className="w-full bg-[#b5edce] text-[#3b2a20] hover:bg-[#b5edce]/80 font-poppins font-bold">
-                    Sign Up
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#b5edce] text-[#3b2a20] hover:bg-[#b5edce]/80 font-poppins font-bold"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Signing Up..." : "Sign Up"}
                   </Button>
-                </div>
+                </form>
               </CollapsibleContent>
             </Collapsible>
           </div>
@@ -194,9 +237,7 @@ const Footer = () => {
                 <Link to="#" className="hover:opacity-80 transition-colors">
                   <Linkedin size={24} style={{ color: '#b5edce' }} />
                 </Link>
-                <Link to="#" className="hover:opacity-80 transition-colors">
-                  <Twitter size={24} style={{ color: '#b5edce' }} />
-                </Link>
+
               </div>
             </div>
 

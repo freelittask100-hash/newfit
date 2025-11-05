@@ -10,6 +10,11 @@ import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
+import image2 from "@/assets/2.png";
+import image4 from "@/assets/4.png";
+import image8 from "@/assets/8.png";
+import image10 from "@/assets/10.png";
+
 const ProductDetail = () => {
   const { name } = useParams();
   const navigate = useNavigate();
@@ -435,6 +440,57 @@ const ProductDetail = () => {
       </div>
 
       </div>
+
+      {/* New section for protein bars */}
+      {product.category === 'protein_bars' && (
+        <div className="bg-[#5e4338] py-12 w-full">
+          <div className="w-full">
+            <div className="grid md:grid-cols-2 gap-12 max-w-none px-4">
+              <div className="bg-[#5e4338] border-4 border-white p-8 rounded-lg">
+                <h3 className="font-saira font-black text-2xl text-white uppercase mb-4">Inside The Bar</h3>
+                <hr className="border-white mb-4" />
+                <p className="text-white">Content to be added later...</p>
+              </div>
+              <div className="bg-[#5e4338] border-4 border-white p-8 rounded-lg">
+                <h3 className="font-saira font-black text-2xl text-white uppercase mb-4">Nutrition Info</h3>
+                <hr className="border-white mb-4" />
+                <p className="text-white">Content to be added later...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New section for protein bars benefits */}
+      {product.category === 'protein_bars' && (
+        <div className="bg-white py-12 w-full">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="text-center mb-8">
+              <h2 className="font-saira font-black text-3xl md:text-5xl text-[#5e4338] uppercase mb-4">
+                Not Just a Regular Real-Ingredient Bar, but a Bar Built Better.
+              </h2>
+              <p className="font-saira font-semibold text-xl md:text-3xl text-[#b5edce] mb-8">
+                Real ingredients. Balanced calories. More protein.
+              </p>
+            </div>
+
+            <div className="bg-white h-48 md:h-48 w-full flex items-center justify-center gap-8 mb-8">
+              <div className="grid grid-cols-2 md:flex md:flex-row gap-8">
+                <img src={image2} alt="Image 2" className="h-28 md:h-40 w-auto" />
+                <img src={image4} alt="Image 4" className="h-28 md:h-40 w-auto" />
+                <img src={image8} alt="Image 8" className="h-28 md:h-40 w-auto" />
+                <img src={image10} alt="Image 10" className="h-28 md:h-40 w-auto" />
+              </div>
+            </div>
+
+            <div className="text-center">
+              <h3 className="font-saira font-black text-xl md:text-3xl text-black uppercase">
+                Everything in balance, the way food should be.
+              </h3>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

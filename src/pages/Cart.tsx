@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Minus, Plus, Trash2, Tag, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 
 const Cart = () => {
@@ -36,7 +36,7 @@ const Cart = () => {
   if (items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="text-3xl font-bold mb-4">Your Cart</h1>
+        <h1 className="font-saira font-black text-6xl text-[#3b2a20] mb-4 uppercase">YOUR CART</h1>
         <p className="text-muted-foreground mb-4">Your cart is empty</p>
         <Button onClick={() => navigate("/products")} className="bg-[b5edce] bg-[#b5edce]/55 font-poppins font-bold">
           Browse Products
@@ -47,60 +47,62 @@ const Cart = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
+      <h1 className="font-saira font-black text-6xl text-[#3b2a20] mb-8 uppercase">YOUR CART</h1>
 
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
-            <Card key={`${item.id}-${item.protein}`} className="p-4">
-              <div className="flex gap-4">
-                <div className="w-16 h-16 bg-muted rounded-lg overflow-hidden flex-shrink-0">
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
-                      No Image
+            <Link key={`${item.id}-${item.protein}`} to={`/product/${encodeURIComponent(item.name)}`} className="block">
+              <Card className="p-4 bg-white hover:bg-[#3b2a20]/30 transition-colors cursor-pointer">
+                <div className="flex gap-4">
+                  <div className="w-16 h-16 bg-muted rounded-lg overflow-hidden flex-shrink-0">
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
+                        No Image
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1">
+                    <h3 className="font-saira font-black text-lg mb-2 text-[#3b2a20] uppercase">{item.name}</h3>
+                    <p className="text-sm font-poppins font-black mb-1 text-black uppercase">Protein: {item.protein}</p>
+                    <p className="font-montserrat text-lg font-bold text-primary">₹{item.price}</p>
+                  </div>
+
+                  <div className="flex flex-col items-end gap-2">
+                    <Button variant="ghost" size="icon" onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeItem(item.id, item.protein); }}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateQuantity(item.id, item.protein, item.quantity - 1); }}
+                        disabled={item.quantity <= 1}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="w-8 text-center">{item.quantity}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateQuantity(item.id, item.protein, item.quantity + 1); }}
+                        disabled={item.quantity >= item.stock}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
                     </div>
-                  )}
-                </div>
-
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-2">{item.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-1">Protein: {item.protein}</p>
-                  <p className="text-primary font-bold">₹{item.price}</p>
-                </div>
-
-                <div className="flex flex-col items-end gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => removeItem(item.id, item.protein)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => updateQuantity(item.id, item.protein, item.quantity - 1)}
-                      disabled={item.quantity <= 1}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <span className="w-8 text-center">{item.quantity}</span>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => updateQuantity(item.id, item.protein, item.quantity + 1)}
-                      disabled={item.quantity >= item.stock}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
                   </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </Link>
           ))}
         </div>
 

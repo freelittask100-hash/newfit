@@ -22,7 +22,7 @@ const BackButton = () => {
     <button
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
-      className="fixed left-4 top-20 z-40 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#534338] transition-colors duration-200 group"
+      className="fixed left-4 top-20 z-40 w-14 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg hover:bg-[#534338] transition-colors duration-200 group"
       aria-label="Go back"
     >
       <ArrowLeft className="w-6 h-6 text-black group-hover:text-white transition-colors duration-200" />

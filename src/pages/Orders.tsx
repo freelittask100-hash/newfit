@@ -49,7 +49,8 @@ const Orders = () => {
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      setOrders(data);
+      // Filter to show only successfully placed orders (exclude cancelled)
+      setOrders(data.filter(order => order.status !== "cancelled"));
     }
     setLoading(false);
   };

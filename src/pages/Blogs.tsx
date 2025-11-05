@@ -51,13 +51,13 @@ const Blogs = () => {
     <div className="bg-[#b5edce]/50 min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 flex justify-between items-center">
-          <h1 className="font-saira font-black text-6xl text-[#3b2a20] text-left">Blog</h1>
+          <h1 className="font-saira font-black text-6xl text-[#3b2a20] text-left uppercase">Blog</h1>
           <div className="flex gap-2">
             <Button
               variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('grid')}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 hover:bg-[#b5edce] data-[state=on]:bg-[#b5edce]"
             >
               <Grid className="h-4 w-4" />
               Grid
@@ -66,7 +66,7 @@ const Blogs = () => {
               variant={viewMode === 'scroll' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('scroll')}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 hover:bg-[#b5edce] data-[state=on]:bg-[#b5edce]"
             >
               <List className="h-4 w-4" />
               Scroll

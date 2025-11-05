@@ -184,8 +184,8 @@ const Products = () => {
                   </div>
                 )}
               </div>
-              <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-              <p className="text-primary font-bold">
+              <h3 className="font-saira font-black text-lg mb-2 text-[#3b2a20] uppercase">{product.name}</h3>
+              <p className="font-montserrat text-xl font-bold text-primary">
                 {product.price ? `₹${product.price}` : `₹${product.price_15g} - ₹${product.price_20g}`}
               </p>
             </Card>
