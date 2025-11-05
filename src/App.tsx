@@ -18,7 +18,7 @@ import Shipping from "./pages/Shipping";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
-import Products from "./pages/Products";
+import Products from "./pages/Products-updated";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import AddressSelection from "./pages/AddressSelection";
