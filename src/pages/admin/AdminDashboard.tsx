@@ -7,6 +7,7 @@ import ProductsTab from "@/components/admin/ProductsTab";
 import OrdersTab from "@/components/admin/OrdersTab";
 import AnalyticsTab from "@/components/admin/AnalyticsTab";
 import PromoCodesTab from "@/components/admin/PromoCodesTab";
+import BlogsTab from "@/components/admin/BlogsTab";
 import ProtectedAdminRoute from "@/components/admin/ProtectedAdminRoute";
 
 const AdminDashboard = () => {
@@ -30,6 +31,7 @@ const AdminDashboard = () => {
         <Tabs defaultValue="products" className="space-y-4">
           <TabsList>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="blogs">Blogs</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="promo-codes">Promo Codes</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -37,6 +39,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="products">
             <ProductsTab />
+          </TabsContent>
+
+          <TabsContent value="blogs">
+            <BlogsTab />
           </TabsContent>
 
           <TabsContent value="orders">

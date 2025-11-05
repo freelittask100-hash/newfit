@@ -20,8 +20,8 @@ interface PromoCode {
 interface CartContextType {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "quantity"> & { quantity?: number }) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  removeItem: (id: string, protein: string) => void;
+  updateQuantity: (id: string, protein: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -67,13 +67,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const removeItem = (id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
+  const removeItem = (id: string, protein: string) => {
+    setItems((prev) => prev.filter((i) => !(i.id === id && i.protein === protein)));
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = (id: string, protein: string, quantity: number) => {
     setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, quantity: Math.min(Math.max(1, quantity), i.stock) } : i))
+      prev.map((i) => (i.id === id && i.protein === protein ? { ...i, quantity: Math.min(Math.max(1, quantity), i.stock) } : i))
     );
   };
 

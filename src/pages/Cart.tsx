@@ -52,7 +52,7 @@ const Cart = () => {
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
-            <Card key={item.id} className="p-4">
+            <Card key={`${item.id}-${item.protein}`} className="p-4">
               <div className="flex gap-4">
                 <div className="w-16 h-16 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                   {item.image ? (
@@ -75,7 +75,7 @@ const Cart = () => {
                 </div>
 
                 <div className="flex flex-col items-end gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => removeItem(item.id)}>
+                  <Button variant="ghost" size="icon" onClick={() => removeItem(item.id, item.protein)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
 
@@ -83,7 +83,7 @@ const Cart = () => {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.id, item.protein, item.quantity - 1)}
                       disabled={item.quantity <= 1}
                     >
                       <Minus className="h-4 w-4" />
@@ -92,7 +92,7 @@ const Cart = () => {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.id, item.protein, item.quantity + 1)}
                       disabled={item.quantity >= item.stock}
                     >
                       <Plus className="h-4 w-4" />
