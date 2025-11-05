@@ -65,6 +65,34 @@ export const profileSchema = z.object({
     .max(500, 'Address must be less than 500 characters'),
 });
 
+// Guest checkout validation schemas
+export const guestCheckoutSchema = z.object({
+  name: z.string()
+    .trim()
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name must be less than 100 characters'),
+  email: z.string()
+    .email('Invalid email address')
+    .max(255, 'Email must be less than 255 characters'),
+  phone: z.string()
+    .trim()
+    .regex(/^[6-9]\d{9}$/, 'Phone number must be 10 digits starting with 6-9'),
+  address: z.string()
+    .trim()
+    .min(10, 'Address must be at least 10 characters')
+    .max(500, 'Address must be less than 500 characters'),
+});
+
+export const guestOrderLookupSchema = z.object({
+  email: z.string()
+    .email('Invalid email address')
+    .max(255, 'Email must be less than 255 characters'),
+  orderNumber: z.string()
+    .trim()
+    .min(1, 'Order number is required')
+    .max(50, 'Order number must be less than 50 characters'),
+});
+
 // Product validation schema
 export const productSchema = z.object({
   name: z.string()

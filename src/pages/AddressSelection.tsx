@@ -1,33 +1,49 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { MapPin, Edit, Plus } from "lucide-react";
 import AddressForm from "@/components/AddressForm";
+import { guestCheckoutSchema } from "@/lib/validation";
 
 const AddressSelection = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
 
+  // Guest checkout state
+  const isGuestCheckout = location.state?.isGuest || false;
+  const [guestData, setGuestData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: ''
+  });
+  const [guestErrors, setGuestErrors] = useState<any>({});
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        navigate("/auth");
-        return;
-      }
-      setUser(session.user);
-      fetchProfile(session.user.id);
-    });
-  }, []);
+    if (!isGuestCheckout) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (!session) {
+          navigate("/auth");
+          return;
+        }
+        setUser(session.user);
+        fetchProfile(session.user.id);
+      });
+    }
+  }, [isGuestCheckout]);
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from("profiles")
+    const { data } = await (supabase
+      .from as any)("profiles")
       .select("*")
       .eq("id", userId)
       .single();
@@ -39,8 +55,8 @@ const AddressSelection = () => {
 
     setSavingAddress(true);
     try {
-      const { error } = await supabase
-        .from("profiles")
+      const { error } = await (supabase
+        .from as any)("profiles")
         .update({ address })
         .eq("id", user.id);
 
@@ -57,11 +73,26 @@ const AddressSelection = () => {
   };
 
   const proceedToCheckout = () => {
-    if (!profile?.address) {
-      toast.error("Please add a delivery address first");
-      return;
+    if (isGuestCheckout) {
+      // Validate guest data
+      const validationResult = guestCheckoutSchema.safeParse(guestData);
+      if (!validationResult.success) {
+        const errors: any = {};
+        validationResult.error.errors.forEach(err => {
+          errors[err.path[0]] = err.message;
+        });
+        setGuestErrors(errors);
+        return;
+      }
+      setGuestErrors({});
+      navigate("/checkout", { state: { isGuest: true, guestData } });
+    } else {
+      if (!profile?.address) {
+        toast.error("Please add a delivery address first");
+        return;
+      }
+      navigate("/checkout");
     }
-    navigate("/checkout");
   };
 
   if (showAddressForm) {
@@ -122,6 +153,62 @@ const AddressSelection = () => {
               >
                 Deliver to this address
               </Button>
+            </CardContent>
+          </Card>
+        ) : isGuestCheckout ? (
+          <Card className="border-2 border-dashed border-gray-300">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-medium mb-4">Guest Checkout Information</h3>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="guest-name">Full Name</Label>
+                  <Input
+                    id="guest-name"
+                    value={guestData.name}
+                    onChange={(e) => setGuestData({ ...guestData, name: e.target.value })}
+                    className={guestErrors.name ? "border-red-500" : ""}
+                  />
+                  {guestErrors.name && <p className="text-red-500 text-sm mt-1">{guestErrors.name}</p>}
+                </div>
+                <div>
+                  <Label htmlFor="guest-email">Email</Label>
+                  <Input
+                    id="guest-email"
+                    type="email"
+                    value={guestData.email}
+                    onChange={(e) => setGuestData({ ...guestData, email: e.target.value })}
+                    className={guestErrors.email ? "border-red-500" : ""}
+                  />
+                  {guestErrors.email && <p className="text-red-500 text-sm mt-1">{guestErrors.email}</p>}
+                </div>
+                <div>
+                  <Label htmlFor="guest-phone">Phone Number</Label>
+                  <Input
+                    id="guest-phone"
+                    value={guestData.phone}
+                    onChange={(e) => setGuestData({ ...guestData, phone: e.target.value })}
+                    className={guestErrors.phone ? "border-red-500" : ""}
+                  />
+                  {guestErrors.phone && <p className="text-red-500 text-sm mt-1">{guestErrors.phone}</p>}
+                </div>
+                <div>
+                  <Label htmlFor="guest-address">Delivery Address</Label>
+                  <textarea
+                    id="guest-address"
+                    value={guestData.address}
+                    onChange={(e) => setGuestData({ ...guestData, address: e.target.value })}
+                    className={`w-full p-2 border rounded-md ${guestErrors.address ? "border-red-500" : "border-gray-300"}`}
+                    rows={3}
+                  />
+                  {guestErrors.address && <p className="text-red-500 text-sm mt-1">{guestErrors.address}</p>}
+                </div>
+                <Button
+                  onClick={proceedToCheckout}
+                  className="w-full font-poppins font-bold"
+                >
+                  Proceed to Checkout
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ) : (
