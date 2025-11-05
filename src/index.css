@@ -1,3 +1,8 @@
+/* Local font definitions */
+@import './fonts/poppins.css';
+@import './fonts/saira.css';
+@import './fonts/montserrat.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
