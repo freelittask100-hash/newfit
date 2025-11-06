@@ -6,6 +6,13 @@
       "destination": "/index.html"
     }
   ],
+  "redirects": [
+    {
+      "source": "/auth",
+      "destination": "https://freelit.in/auth",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

@@ -445,6 +445,13 @@ const ProductDetail = () => {
       {product.category === 'protein_bars' && (
         <div className="bg-[#5e4338] py-12 w-full">
           <div className="w-full">
+            <div className="px-4 mb-8">
+              <h2 className="font-saira font-black text-left text-[#b5edce] uppercase">Product description:</h2>
+              <p className="font-saira font-semibold text-white mt-4">
+                Each Choconut Bar packs 20g of protein in just 228 calories, made with a blend of whey and pea protein.<br />
+                No refined sugar. No preservatives. No chalky chew.
+              </p>
+            </div>
             <div className="grid md:grid-cols-2 gap-12 max-w-none px-4">
               <div className="bg-[#5e4338] border-4 border-white p-8 rounded-lg">
                 <h3 className="font-saira font-black text-2xl text-white uppercase mb-4">Inside The Bar</h3>
