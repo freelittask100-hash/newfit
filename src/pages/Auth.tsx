@@ -59,9 +59,9 @@ const Auth = () => {
             toast.success("Email verified successfully! Welcome to Freelit.");
             // Clear URL parameters
             window.history.replaceState({}, document.title, window.location.pathname);
-            // Check for returnTo in URL params first, then fall back to location state
+            // Check for redirectTo in URL params first, then fall back to location state
             const urlParams = new URLSearchParams(window.location.search);
-            const returnTo = urlParams.get('returnTo') || location.state?.returnTo || "/";
+            const returnTo = urlParams.get('redirectTo') || location.state?.returnTo || "/";
             navigate(returnTo, { replace: true });
           }
         } else if (token && type) {
@@ -79,9 +79,9 @@ const Auth = () => {
             toast.success("Email verified successfully! Welcome to Freelit.");
             // Clear URL parameters
             window.history.replaceState({}, document.title, window.location.pathname);
-            // Check for returnTo in URL params first, then fall back to location state
+            // Check for redirectTo in URL params first, then fall back to location state
             const urlParams = new URLSearchParams(window.location.search);
-            const returnTo = urlParams.get('returnTo') || location.state?.returnTo || "/";
+            const returnTo = urlParams.get('redirectTo') || location.state?.returnTo || "/";
             navigate(returnTo, { replace: true });
           }
         } else {
@@ -89,9 +89,9 @@ const Auth = () => {
           const { data: { session } } = await supabase.auth.getSession();
           if (session && mounted) {
             console.log('User already authenticated:', session.user.email);
-            // Check for returnTo in URL params first, then fall back to location state
+            // Check for redirectTo in URL params first, then fall back to location state
             const urlParams = new URLSearchParams(window.location.search);
-            const returnTo = urlParams.get('returnTo') || location.state?.returnTo || "/";
+            const returnTo = urlParams.get('redirectTo') || location.state?.returnTo || "/";
             navigate(returnTo, { replace: true });
           }
         }
@@ -109,9 +109,9 @@ const Auth = () => {
 
       if (event === 'SIGNED_IN' && session && mounted) {
         toast.success("Email verified successfully! Welcome to Freelit.");
-        // Check for returnTo in URL params first, then fall back to location state
+        // Check for redirectTo in URL params first, then fall back to location state
         const urlParams = new URLSearchParams(window.location.search);
-        const returnTo = urlParams.get('returnTo') || location.state?.returnTo || "/";
+        const returnTo = urlParams.get('redirectTo') || location.state?.returnTo || "/";
         navigate(returnTo, { replace: true });
       } else if (event === 'SIGNED_OUT' && mounted) {
         // Handle sign out if needed
@@ -147,9 +147,9 @@ const Auth = () => {
 
         if (error) throw error;
         toast.success("Welcome back!");
-        // Check for returnTo in URL params first, then fall back to location state
+        // Check for redirectTo in URL params first, then fall back to location state
         const urlParams = new URLSearchParams(window.location.search);
-        const returnTo = urlParams.get('returnTo') || location.state?.returnTo || "/";
+        const returnTo = urlParams.get('redirectTo') || location.state?.returnTo || "/";
         navigate(returnTo);
       } else {
         // Validate signup data
