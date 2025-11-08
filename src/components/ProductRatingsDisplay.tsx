@@ -96,38 +96,67 @@ const ProductRatingsDisplay = ({ productId }: ProductRatingsDisplayProps) => {
   };
 
   const handleHelpfulVote = async (ratingId: string) => {
-    if (userVotes.has(ratingId)) return; // Already voted
+    const hasVoted = userVotes.has(ratingId);
+    const isRemoving = hasVoted;
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const userIdentifier = session?.user?.id || `guest_${Date.now()}_${Math.random()}`;
 
-      // Insert vote
-      const { error } = await supabase
-        .from('rating_helpful_votes')
-        .insert([{
-          rating_id: ratingId,
-          user_identifier: userIdentifier
-        }]);
+      if (isRemoving) {
+        // Remove vote
+        const { error } = await supabase
+          .from('rating_helpful_votes')
+          .delete()
+          .eq('rating_id', ratingId)
+          .eq('user_identifier', userIdentifier);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Update local state
-      const newUserVotes = new Set(userVotes);
-      newUserVotes.add(ratingId);
-      setUserVotes(newUserVotes);
+        // Update local state
+        const newUserVotes = new Set(userVotes);
+        newUserVotes.delete(ratingId);
+        setUserVotes(newUserVotes);
 
-      // Store in localStorage for guests
-      const guestVotes = JSON.parse(localStorage.getItem('rating_helpful_votes') || '[]');
-      guestVotes.push(ratingId);
-      localStorage.setItem('rating_helpful_votes', JSON.stringify(guestVotes));
+        // Remove from localStorage for guests
+        const guestVotes = JSON.parse(localStorage.getItem('rating_helpful_votes') || '[]');
+        const filteredVotes = guestVotes.filter((id: string) => id !== ratingId);
+        localStorage.setItem('rating_helpful_votes', JSON.stringify(filteredVotes));
 
-      // Update the rating's helpful count locally
-      setRatings(prev => prev.map(rating =>
-        rating.id === ratingId
-          ? { ...rating, helpful_votes: (rating.helpful_votes || 0) + 1 }
-          : rating
-      ));
+        // Update the rating's helpful count locally
+        setRatings(prev => prev.map(rating =>
+          rating.id === ratingId
+            ? { ...rating, helpful_votes: Math.max((rating.helpful_votes || 0) - 1, 0) }
+            : rating
+        ));
+      } else {
+        // Add vote
+        const { error } = await supabase
+          .from('rating_helpful_votes')
+          .insert([{
+            rating_id: ratingId,
+            user_identifier: userIdentifier
+          }]);
+
+        if (error) throw error;
+
+        // Update local state
+        const newUserVotes = new Set(userVotes);
+        newUserVotes.add(ratingId);
+        setUserVotes(newUserVotes);
+
+        // Store in localStorage for guests
+        const guestVotes = JSON.parse(localStorage.getItem('rating_helpful_votes') || '[]');
+        guestVotes.push(ratingId);
+        localStorage.setItem('rating_helpful_votes', JSON.stringify(guestVotes));
+
+        // Update the rating's helpful count locally
+        setRatings(prev => prev.map(rating =>
+          rating.id === ratingId
+            ? { ...rating, helpful_votes: (rating.helpful_votes || 0) + 1 }
+            : rating
+        ));
+      }
 
     } catch (error) {
       console.error('Error voting:', error);
@@ -136,16 +165,21 @@ const ProductRatingsDisplay = ({ productId }: ProductRatingsDisplayProps) => {
 
   const renderStars = (rating: number) => {
     return (
-      <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            className={cn(
-              "h-4 w-4",
-              star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-            )}
-          />
-        ))}
+      <div className="flex items-center gap-2">
+        <div className="flex gap-1">
+          {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                className={cn(
+                  "h-4 w-4",
+                  star <= rating ? "fill-black text-black" : "text-white"
+                )}
+              />
+          ))}
+        </div>
+        <span className="font-saira font-bold text-sm text-[#3b2a20]">
+          {rating}/5
+        </span>
       </div>
     );
   };
@@ -162,7 +196,7 @@ const ProductRatingsDisplay = ({ productId }: ProductRatingsDisplayProps) => {
     <div className="mt-8">
       <h3 className="font-saira font-bold text-xl text-[#5e4338] mb-6">Customer Reviews</h3>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
         {ratings.map((rating) => (
           <Card key={rating.id} className="p-6 bg-[#b5edce]/30 border-2 border-[#3b2a20]/20">
             <div className="space-y-4">
@@ -189,23 +223,22 @@ const ProductRatingsDisplay = ({ productId }: ProductRatingsDisplayProps) => {
               </div>
 
               {/* Helpful Vote Section */}
-              <div className="flex items-center justify-between pt-2 border-t border-[#3b2a20]/10">
+              <div className="pt-2 border-t border-[#3b2a20]/10 space-y-2">
                 <button
                   onClick={() => handleHelpfulVote(rating.id)}
-                  disabled={userVotes.has(rating.id)}
                   className={cn(
                     "flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium transition-colors",
                     userVotes.has(rating.id)
-                      ? "bg-[#5e4338] text-white cursor-not-allowed"
+                      ? "bg-[#5e4338] text-white hover:bg-[#4a3428]"
                       : "bg-[#5e4338]/10 text-[#5e4338] hover:bg-[#5e4338]/20"
                   )}
                 >
                   <ThumbsUp className="h-4 w-4" />
                   {userVotes.has(rating.id) ? "Helpful" : "Find Helpful"}
                 </button>
-                <span className="text-sm text-[#3b2a20]/60">
+                <div className="text-sm text-[#3b2a20]/60">
                   {rating.helpful_votes || 0} people found this helpful
-                </span>
+                </div>
               </div>
             </div>
           </Card>
