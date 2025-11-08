@@ -118,7 +118,7 @@ const RatingComponent = ({ productId }: RatingComponentProps) => {
           <h3 className="font-saira font-bold text-lg text-[#5e4338] mb-2">Rate This Product</h3>
           <p className="text-muted-foreground mb-4">Please sign in to leave a rating and comment.</p>
           <Button
-            onClick={() => window.location.href = `/auth?returnTo=${encodeURIComponent(window.location.pathname)}`}
+            onClick={() => window.location.href = '/auth'}
             className="bg-[#5e4338] hover:bg-[#4a3428] text-white"
           >
             Sign In

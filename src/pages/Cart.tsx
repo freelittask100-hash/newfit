@@ -212,7 +212,7 @@ const Cart = () => {
                   <Button
                     variant="outline"
                     className="w-full font-poppins font-bold"
-                    onClick={() => window.location.href = `/auth?returnTo=${encodeURIComponent(window.location.pathname)}`}
+                    onClick={() => window.location.href = '/auth'}
                   >
                     Sign In & Order
                   </Button>
