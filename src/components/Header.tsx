@@ -72,11 +72,16 @@ const Header = () => {
           </div>
           <div className="md:hidden absolute right-4 z-10 flex items-center gap-2">
             {user && (
-              <Link to="/profile">
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
+              <>
+                <Link to="/profile">
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <Button variant="ghost" size="icon" onClick={handleLogout}>
+                  <LogOut className="h-5 w-5" />
                 </Button>
-              </Link>
+              </>
             )}
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">
