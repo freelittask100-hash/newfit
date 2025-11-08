@@ -20,9 +20,18 @@ const RatingComponent = ({ productId }: RatingComponentProps) => {
   const [hoverRating, setHoverRating] = useState(0);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const getUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+    };
+
+    getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
     });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
