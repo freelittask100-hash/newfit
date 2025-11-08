@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +13,7 @@ interface RatingComponentProps {
 }
 
 const RatingComponent = ({ productId }: RatingComponentProps) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -118,7 +120,7 @@ const RatingComponent = ({ productId }: RatingComponentProps) => {
           <h3 className="font-saira font-bold text-lg text-[#5e4338] mb-2">Rate This Product</h3>
           <p className="text-muted-foreground mb-4">Please sign in to leave a rating and comment.</p>
           <Button
-            onClick={() => window.location.href = `/auth?returnTo=${encodeURIComponent(window.location.pathname)}`}
+            onClick={() => navigate(`/auth?returnTo=${encodeURIComponent(window.location.pathname)}`)}
             className="bg-[#5e4338] hover:bg-[#4a3428] text-white"
           >
             Sign In
