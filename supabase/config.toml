@@ -9,8 +9,8 @@ max_rows = 1000
 
 [auth]
 enabled = true
-site_url = "https://freelit.in"
-additional_redirect_urls = ["https://freelit.in/auth", "https://freelit.in"]
+site_url = "https://freelit-updated-gzpoxxsin-sathwikreddy4658-9967s-projects.vercel.app"
+additional_redirect_urls = ["https://freelit-updated-gzpoxxsin-sathwikreddy4658-9967s-projects.vercel.app/auth", "https://freelit-updated-gzpoxxsin-sathwikreddy4658-9967s-projects.vercel.app"]
 jwt_expiry = 3600
 enable_signup = true
 enable_anonymous_sign_ins = false
