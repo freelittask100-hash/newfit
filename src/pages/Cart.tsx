@@ -202,12 +202,21 @@ const Cart = () => {
                   Order Now
                 </Button>
               ) : (
-                <Button
-                  className="w-full font-poppins font-bold"
-                  onClick={() => navigate("/checkout", { state: { isGuest: true } })}
-                >
-                  Order Now
-                </Button>
+                <>
+                  <Button
+                    className="w-full font-poppins font-bold"
+                    onClick={() => navigate("/checkout", { state: { isGuest: true } })}
+                  >
+                    Order Now
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full font-poppins font-bold"
+                    onClick={() => window.location.href = `/auth?returnTo=${encodeURIComponent(window.location.pathname)}`}
+                  >
+                    Sign In & Order
+                  </Button>
+                </>
               )}
             </div>
           </Card>
