@@ -17,9 +17,9 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 
 async function assignAdminRole() {
   try {
-    // Query the user directly from auth.users using service role
+    // Query the user from profiles table instead
     const { data: userData, error: userError } = await supabase
-      .from('auth.users')
+      .from('profiles')
       .select('id')
       .eq('email', 'admin@freelit.com')
       .single();
