@@ -105,7 +105,6 @@ export const productSchema = z.object({
   price: z.number()
     .min(0, 'Price must be 0 or greater')
     .max(100000, 'Price must be less than ₹100,000')
-    .nullable()
     .optional(),
   price_15g: z.number()
     .positive('15g price must be positive')
@@ -146,7 +145,6 @@ export const productSchema = z.object({
     .int('Minimum order quantity must be a whole number')
     .min(1, 'Minimum order quantity must be at least 1')
     .max(1000, 'Minimum order quantity must be less than 1000')
-    .nullable()
     .optional(),
   is_hidden: z.boolean(),
 });

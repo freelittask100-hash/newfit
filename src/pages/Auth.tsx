@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { signupSchema, loginSchema } from "@/lib/validation";
 import { sanitizeError } from "@/lib/errorUtils";
@@ -45,7 +45,11 @@ const Auth = () => {
 
         if (error) {
           console.error('Auth error:', error, errorDescription);
-          toast.error(`Verification failed: ${errorDescription || error}`);
+          toast({
+            title: "Verification Failed",
+            description: errorDescription || error,
+            variant: "destructive",
+          });
           // Clear URL parameters
           window.history.replaceState({}, document.title, window.location.pathname);
           return;
@@ -60,10 +64,17 @@ const Auth = () => {
 
           if (sessionError) {
             console.error('Session error:', sessionError);
-            toast.error("Email verification failed. Please try again.");
+            toast({
+              title: "Verification Failed",
+              description: "Email verification failed. Please try again.",
+              variant: "destructive",
+            });
           } else if (data.session) {
             console.log('Session set successfully:', data.session.user.email);
-            toast.success("Email verified successfully! Welcome to Freelit.");
+            toast({
+              title: "Success!",
+              description: "Email verified successfully! Welcome to Freelit.",
+            });
             // Clear URL parameters
             window.history.replaceState({}, document.title, window.location.pathname);
             // Check for redirectTo in URL params first, then fall back to location state
@@ -73,24 +84,16 @@ const Auth = () => {
           }
         } else if (token && type) {
           console.log('Verifying OTP with token and type...');
-          const { data, error: otpError } = await supabase.auth.verifyOtp({
-            token,
-            type: type as any,
+          // For email verification, we need to use the token_hash from the URL
+          // Supabase v2 uses access_token and refresh_token in the hash for email verification
+          // If we have a token and type, it's likely an older format or different flow
+          console.log('Token-based verification detected, but modern Supabase uses access_token/refresh_token');
+          toast({
+            title: "Verification Link Issue",
+            description: "Please use the latest verification link from your email.",
+            variant: "destructive",
           });
-
-          if (otpError) {
-            console.error('OTP verification error:', otpError);
-            toast.error("Email verification failed. Please try again.");
-          } else if (data.session) {
-            console.log('OTP verified successfully:', data.session.user.email);
-            toast.success("Email verified successfully! Welcome to Freelit.");
-            // Clear URL parameters
-            window.history.replaceState({}, document.title, window.location.pathname);
-            // Check for redirectTo in URL params first, then fall back to location state
-            const urlParams = new URLSearchParams(window.location.search);
-            const returnTo = urlParams.get('redirectTo') || location.state?.returnTo || "/";
-            navigate(returnTo, { replace: true });
-          }
+          window.history.replaceState({}, document.title, window.location.pathname);
         } else {
           // Check if user is already authenticated
           const { data: { session } } = await supabase.auth.getSession();
@@ -104,7 +107,11 @@ const Auth = () => {
         }
       } catch (err) {
         console.error('Auth handling error:', err);
-        toast.error("An error occurred during authentication.");
+        toast({
+          title: "Error",
+          description: "An error occurred during authentication.",
+          variant: "destructive",
+        });
       }
     };
 
@@ -115,7 +122,10 @@ const Auth = () => {
       console.log('Auth state change:', event, session?.user?.email);
 
       if (event === 'SIGNED_IN' && session && mounted) {
-        toast.success("Email verified successfully! Welcome to Freelit.");
+        toast({
+          title: "Success!",
+          description: "Email verified successfully! Welcome to Freelit.",
+        });
         // Check for redirectTo in URL params first, then fall back to location state
         const urlParams = new URLSearchParams(window.location.search);
         const returnTo = urlParams.get('redirectTo') || location.state?.returnTo || "/";
@@ -139,21 +149,38 @@ const Auth = () => {
     try {
       if (isLogin) {
         // Validate login data
-        const validationResult = loginSchema.safeParse({ email, password });
+        const validationResult = loginSchema.safeParse({ 
+          email: email.trim(), 
+          password 
+        });
+        
         if (!validationResult.success) {
           const firstError = validationResult.error.errors[0];
-          toast.error(firstError.message);
+          toast({
+            title: "Validation Error",
+            description: firstError.message,
+            variant: "destructive",
+          });
           setLoading(false);
           return;
         }
 
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+        console.log('Attempting sign in with:', { email: validationResult.data.email });
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: validationResult.data.email,
+          password: validationResult.data.password,
         });
 
-        if (error) throw error;
-        toast.success("Welcome back!");
+        if (error) {
+          console.error('Sign in error:', error);
+          throw error;
+        }
+        
+        console.log('Sign in successful:', data);
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in.",
+        });
         // Check for redirectTo in URL params first, then fall back to location state
         const urlParams = new URLSearchParams(window.location.search);
         const returnTo = urlParams.get('redirectTo') || location.state?.returnTo || "/";
@@ -161,21 +188,30 @@ const Auth = () => {
       } else {
         // Validate signup data
         const validationResult = signupSchema.safeParse({
-          name,
-          email,
+          name: name.trim(),
+          email: email.trim(),
           password,
         });
 
         if (!validationResult.success) {
           const firstError = validationResult.error.errors[0];
-          toast.error(firstError.message);
+          toast({
+            title: "Validation Error",
+            description: firstError.message,
+            variant: "destructive",
+          });
           setLoading(false);
           return;
         }
 
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
+        console.log('Attempting sign up with:', { 
+          email: validationResult.data.email, 
+          name: validationResult.data.name 
+        });
+        
+        const { data, error } = await supabase.auth.signUp({
+          email: validationResult.data.email,
+          password: validationResult.data.password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth`,
             data: {
@@ -184,13 +220,35 @@ const Auth = () => {
           },
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Sign up error:', error);
+          throw error;
+        }
 
-        toast.success("Account created! Please check your email to verify your account.");
+        console.log('Sign up response:', data);
+        
+        // Show detailed success message
+        toast({
+          title: "Account created successfully!",
+          description: "Please check your email and click the verification link before signing in.",
+          duration: 8000,
+        });
+        
+        // Clear form and switch to login
+        setEmail("");
+        setPassword("");
+        setName("");
         setIsLogin(true);
       }
     } catch (error: any) {
-      toast.error(sanitizeError(error));
+      console.error('Auth error:', error);
+      const errorMessage = sanitizeError(error);
+      toast({
+        title: "Authentication Error",
+        description: errorMessage,
+        variant: "destructive",
+        duration: 6000,
+      });
     } finally {
       setLoading(false);
     }
@@ -244,7 +302,7 @@ const Auth = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={6}
+                minLength={8}
               />
             </div>
             <Button type="submit" className="w-full font-poppins font-bold" disabled={loading}>

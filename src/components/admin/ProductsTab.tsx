@@ -68,7 +68,7 @@ const ProductsTab = () => {
       shelf_life: "",
       allergens: "",
       min_order_quantity: "",
-      is_hidden: false,
+      is_hidden: false, // Make sure this is false by default
     });
     setEditingProduct(null);
     setImageFiles([]);
@@ -144,7 +144,7 @@ const ProductsTab = () => {
 
     try {
       // Validate numeric fields before parsing
-      const price = formData.price ? parseFloat(formData.price) : 0;
+      const price = formData.price ? parseFloat(formData.price) : undefined;
       const price15g = parseFloat(formData.price_15g);
       const price20g = parseFloat(formData.price_20g);
       const stock = parseInt(formData.stock);
@@ -152,6 +152,7 @@ const ProductsTab = () => {
 
       // Check for NaN values
       if (isNaN(price15g) || isNaN(price20g) || isNaN(stock) ||
+          (price !== undefined && isNaN(price)) ||
           (minOrderQuantity !== undefined && isNaN(minOrderQuantity))) {
         toast({
           title: "Validation failed",
@@ -164,7 +165,7 @@ const ProductsTab = () => {
       const productData = {
         ...formData,
         category: formData.category as "protein_bars" | "dessert_bars" | "chocolates",
-        price: price || undefined,
+        price,
         price_15g: price15g,
         price_20g: price20g,
         stock,
@@ -218,7 +219,12 @@ const ProductsTab = () => {
           .eq("id", editingProduct.id);
 
         if (error) {
-          toast({ title: "Update failed", variant: "destructive" });
+          console.error('Product update error:', error);
+          toast({
+            title: "Update failed",
+            description: error.message || "An error occurred while updating the product",
+            variant: "destructive"
+          });
         } else {
           toast({ title: "Product updated successfully" });
           setShowDialog(false);
@@ -353,11 +359,12 @@ const ProductsTab = () => {
               </div>
 
               <div>
-                <Label>Price (₹)</Label>
+                <Label>Price (₹) - Optional</Label>
                 <Input
                   type="number"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  placeholder="Leave empty if using variant prices only"
                 />
               </div>
 
