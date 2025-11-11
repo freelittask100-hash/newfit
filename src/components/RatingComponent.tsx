@@ -155,8 +155,14 @@ const RatingComponent = ({ productId }: RatingComponentProps) => {
                   "h-8 w-8 transition-colors",
                   (hoverRating || rating) >= star
                     ? "fill-black text-black"
-                    : "text-white"
+                    : ""
                 )}
+                style={{
+                  opacity: (hoverRating || rating) >= star ? 1 : 0.5,
+                  fill: (hoverRating || rating) >= star ? "black" : "#b5edce",
+                  stroke: (hoverRating || rating) >= star ? "black" : "#b5edce",
+                  strokeWidth: 1
+                }}
               />
             </button>
           ))}

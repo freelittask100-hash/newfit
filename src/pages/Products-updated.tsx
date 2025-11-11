@@ -152,7 +152,8 @@ const Products = () => {
           >
             Protein Bars
           </Button>
-          <Button
+          {/* Temporarily hidden categories */}
+          {/* <Button
             variant={categoryFilter === "dessert_bars" ? "default" : "outline"}
             onClick={() => handleCategoryClick("dessert_bars")}
             className={`whitespace-nowrap rounded-lg font-poppins font-bold bg-white text-[#3b2a20] border-white hover:bg-[#5e4338] hover:text-white ${categoryFilter === "dessert_bars" ? "bg-[#5e4338] text-white" : ""}`}
@@ -165,7 +166,7 @@ const Products = () => {
             className={`whitespace-nowrap rounded-lg font-poppins font-bold bg-white text-[#3b2a20] border-white hover:bg-[#5e4338] hover:text-white ${categoryFilter === "chocolates" ? "bg-[#5e4338] text-white" : ""}`}
           >
             Chocolates
-          </Button>
+          </Button> */}
         </div>
       </div>
 
